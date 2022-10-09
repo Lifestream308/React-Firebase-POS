@@ -4,6 +4,7 @@ import { db, auth } from './firebase-config';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { async } from '@firebase/util';
+import UserInfo from './UserInfo';
 
 function App() {
 
@@ -11,12 +12,13 @@ function App() {
   const [registerPassword, setRegisterPassword] = useState("")
   const [loginEmail, setLoginEmail] = useState("")
   const [loginPassword, setLoginPassword] = useState("")
-  // user word is used in a .map below in the return
   const [user, setUser] = useState({})
 
-  onAuthStateChanged(auth, (currentUser) => {
-    setUser(currentUser)
-  })
+  useEffect(() => {
+    onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser)
+    })
+  }, [])
 
   const register = async () => {
     try {
@@ -94,7 +96,7 @@ function App() {
   }, [amount]);
   
   return (
-
+    <>
     <div className="App">
       <header className="App-header">
 
@@ -119,7 +121,7 @@ function App() {
         <button onClick={login}>Login</button>
 
         <h4>User Logged In:</h4>
-        {user?.email}
+        {user ? user.email : "User not logged in."}
 
         <button onClick={logout}>Sign Out</button>
 
@@ -133,12 +135,9 @@ function App() {
         />
         <button onClick={createUser}>Create User</button>
 
-        {users.map((user) => {
+        {users.map((individualUser) => {
           return (
-            <div>
-              <h3>Name: {user.name}</h3>
-              <h3>Age: {user.age}</h3>
-            </div>
+            <UserInfo key={individualUser.name} individualUser={individualUser} />
           )
         })}
 
@@ -150,6 +149,7 @@ function App() {
 
       </header>
     </div>
+    </>
   );
 }
 
